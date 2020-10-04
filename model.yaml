@@ -1,0 +1,1327 @@
+backend: tensorflow
+class_name: Functional
+config:
+  input_layers:
+  - [input_1, 0, 0]
+  layers:
+  - class_name: InputLayer
+    config:
+      batch_input_shape: !!python/tuple [null, 180, 180, 3]
+      dtype: float32
+      name: input_1
+      ragged: false
+      sparse: false
+    inbound_nodes: []
+    name: input_1
+  - class_name: Sequential
+    config:
+      layers:
+      - class_name: InputLayer
+        config:
+          batch_input_shape: !!python/tuple [null, 180, 180, 3]
+          dtype: float32
+          name: random_flip_input
+          ragged: false
+          sparse: false
+      - class_name: RandomFlip
+        config: {dtype: float32, mode: horizontal, name: random_flip, seed: null,
+          trainable: true}
+      - class_name: RandomRotation
+        config: {dtype: float32, factor: 0.1, fill_mode: reflect, interpolation: bilinear,
+          name: random_rotation, seed: null, trainable: true}
+      name: sequential
+    inbound_nodes:
+    - - - input_1
+        - 0
+        - 0
+        - {}
+    name: sequential
+  - class_name: Rescaling
+    config: {dtype: float32, name: rescaling, offset: 0.0, scale: 0.00392156862745098,
+      trainable: true}
+    inbound_nodes:
+    - - - sequential
+        - 1
+        - 0
+        - {}
+    name: rescaling
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: &id001 !!python/tuple [1, 1]
+      dtype: float32
+      filters: 32
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: conv2d
+      padding: same
+      strides: !!python/tuple [2, 2]
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - rescaling
+        - 0
+        - 0
+        - {}
+    name: conv2d
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - conv2d
+        - 0
+        - 0
+        - {}
+    name: batch_normalization
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [batch_normalization/cond/Identity]
+        name: Relu6
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id001
+      dtype: float32
+      filters: 64
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: conv2d_1
+      padding: same
+      strides: !!python/tuple [1, 1]
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6
+        - 0
+        - 0
+        - {}
+    name: conv2d_1
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_1
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - conv2d_1
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_1
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_1
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [batch_normalization_1/cond/Identity]
+        name: Relu6_1
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_1
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_1
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_2
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [Relu6_1]
+        name: Relu6_2
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_1
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_2
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: &id002 !!python/tuple [1, 1]
+      dtype: float32
+      filters: 128
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: &id003 !!python/tuple [1, 1]
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_2
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_2
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_2
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_3
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [batch_normalization_2/cond/Identity]
+        name: Relu6_3
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_2
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_3
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 128
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_1
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_3
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_1
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_3
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_1
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_3
+  - class_name: MaxPooling2D
+    config:
+      data_format: channels_last
+      dtype: float32
+      name: max_pooling2d
+      padding: same
+      pool_size: !!python/tuple [3, 3]
+      strides: !!python/tuple [2, 2]
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_3
+        - 0
+        - 0
+        - {}
+    name: max_pooling2d
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id001
+      dtype: float32
+      filters: 128
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [1, 1]
+      name: conv2d_2
+      padding: same
+      strides: !!python/tuple [2, 2]
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_1
+        - 0
+        - 0
+        - {}
+    name: conv2d_2
+  - class_name: Add
+    config: {dtype: float32, name: add, trainable: true}
+    inbound_nodes:
+    - - - max_pooling2d
+        - 0
+        - 0
+        - &id004 {}
+      - - conv2d_2
+        - 0
+        - 0
+        - *id004
+    name: add
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_4
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [add/add]
+        name: Relu6_4
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - add
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_4
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 256
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_2
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_4
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_2
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_4
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_2
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_4
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_5
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [batch_normalization_4/cond/Identity]
+        name: Relu6_5
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_4
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_5
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 256
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_3
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_5
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_3
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_5
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_3
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_5
+  - class_name: MaxPooling2D
+    config:
+      data_format: channels_last
+      dtype: float32
+      name: max_pooling2d_1
+      padding: same
+      pool_size: !!python/tuple [3, 3]
+      strides: !!python/tuple [2, 2]
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_5
+        - 0
+        - 0
+        - {}
+    name: max_pooling2d_1
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id001
+      dtype: float32
+      filters: 256
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [1, 1]
+      name: conv2d_3
+      padding: same
+      strides: !!python/tuple [2, 2]
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - add
+        - 0
+        - 0
+        - {}
+    name: conv2d_3
+  - class_name: Add
+    config: {dtype: float32, name: add_1, trainable: true}
+    inbound_nodes:
+    - - - max_pooling2d_1
+        - 0
+        - 0
+        - &id005 {}
+      - - conv2d_3
+        - 0
+        - 0
+        - *id005
+    name: add_1
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_6
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [add_1/add]
+        name: Relu6_6
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - add_1
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_6
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 512
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_4
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_6
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_4
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_6
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_4
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_6
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_7
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [batch_normalization_6/cond/Identity]
+        name: Relu6_7
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_6
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_7
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 512
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_5
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_7
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_5
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_7
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_5
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_7
+  - class_name: MaxPooling2D
+    config:
+      data_format: channels_last
+      dtype: float32
+      name: max_pooling2d_2
+      padding: same
+      pool_size: !!python/tuple [3, 3]
+      strides: !!python/tuple [2, 2]
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_7
+        - 0
+        - 0
+        - {}
+    name: max_pooling2d_2
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id001
+      dtype: float32
+      filters: 512
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [1, 1]
+      name: conv2d_4
+      padding: same
+      strides: !!python/tuple [2, 2]
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - add_1
+        - 0
+        - 0
+        - {}
+    name: conv2d_4
+  - class_name: Add
+    config: {dtype: float32, name: add_2, trainable: true}
+    inbound_nodes:
+    - - - max_pooling2d_2
+        - 0
+        - 0
+        - &id006 {}
+      - - conv2d_4
+        - 0
+        - 0
+        - *id006
+    name: add_2
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_8
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [add_2/add]
+        name: Relu6_8
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - add_2
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_8
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 728
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_6
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_8
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_6
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_8
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_6
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_8
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_9
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [batch_normalization_8/cond/Identity]
+        name: Relu6_9
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_8
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_9
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 728
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_7
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_9
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_7
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_9
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_7
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_9
+  - class_name: MaxPooling2D
+    config:
+      data_format: channels_last
+      dtype: float32
+      name: max_pooling2d_3
+      padding: same
+      pool_size: !!python/tuple [3, 3]
+      strides: !!python/tuple [2, 2]
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_9
+        - 0
+        - 0
+        - {}
+    name: max_pooling2d_3
+  - class_name: Conv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      dilation_rate: *id001
+      dtype: float32
+      filters: 728
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [1, 1]
+      name: conv2d_5
+      padding: same
+      strides: !!python/tuple [2, 2]
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - add_2
+        - 0
+        - 0
+        - {}
+    name: conv2d_5
+  - class_name: Add
+    config: {dtype: float32, name: add_3, trainable: true}
+    inbound_nodes:
+    - - - max_pooling2d_3
+        - 0
+        - 0
+        - &id007 {}
+      - - conv2d_5
+        - 0
+        - 0
+        - *id007
+    name: add_3
+  - class_name: SeparableConv2D
+    config:
+      activation: linear
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      data_format: channels_last
+      depth_multiplier: 1
+      depthwise_constraint: null
+      depthwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      depthwise_regularizer: null
+      dilation_rate: *id002
+      dtype: float32
+      filters: 1024
+      groups: 1
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      kernel_size: !!python/tuple [3, 3]
+      name: separable_conv2d_8
+      padding: same
+      pointwise_constraint: null
+      pointwise_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      pointwise_regularizer: null
+      strides: *id003
+      trainable: true
+      use_bias: true
+    inbound_nodes:
+    - - - add_3
+        - 0
+        - 0
+        - {}
+    name: separable_conv2d_8
+  - class_name: BatchNormalization
+    config:
+      axis: !!python/object/apply:tensorflow.python.training.tracking.data_structures.ListWrapper
+      - [3]
+      beta_constraint: null
+      beta_initializer:
+        class_name: Zeros
+        config: {}
+      beta_regularizer: null
+      center: true
+      dtype: float32
+      epsilon: 0.001
+      gamma_constraint: null
+      gamma_initializer:
+        class_name: Ones
+        config: {}
+      gamma_regularizer: null
+      momentum: 0.99
+      moving_mean_initializer:
+        class_name: Zeros
+        config: {}
+      moving_variance_initializer:
+        class_name: Ones
+        config: {}
+      name: batch_normalization_10
+      scale: true
+      trainable: true
+    inbound_nodes:
+    - - - separable_conv2d_8
+        - 0
+        - 0
+        - {}
+    name: batch_normalization_10
+  - class_name: TensorFlowOpLayer
+    config:
+      constants: {}
+      dtype: float32
+      name: Relu6_10
+      node_def:
+        attr:
+          T: {type: DT_FLOAT}
+        input: [batch_normalization_10/cond/Identity]
+        name: Relu6_10
+        op: Relu6
+      trainable: true
+    inbound_nodes:
+    - - - batch_normalization_10
+        - 0
+        - 0
+        - {}
+    name: tf_op_layer_Relu6_10
+  - class_name: GlobalAveragePooling2D
+    config: {data_format: channels_last, dtype: float32, name: global_average_pooling2d,
+      trainable: true}
+    inbound_nodes:
+    - - - tf_op_layer_Relu6_10
+        - 0
+        - 0
+        - {}
+    name: global_average_pooling2d
+  - class_name: Dropout
+    config: {dtype: float32, name: dropout, noise_shape: null, rate: 0.5, seed: null,
+      trainable: true}
+    inbound_nodes:
+    - - - global_average_pooling2d
+        - 0
+        - 0
+        - {}
+    name: dropout
+  - class_name: Dense
+    config:
+      activation: sigmoid
+      activity_regularizer: null
+      bias_constraint: null
+      bias_initializer:
+        class_name: Zeros
+        config: {}
+      bias_regularizer: null
+      dtype: float32
+      kernel_constraint: null
+      kernel_initializer:
+        class_name: GlorotUniform
+        config: {seed: null}
+      kernel_regularizer: null
+      name: dense
+      trainable: true
+      units: 1
+      use_bias: true
+    inbound_nodes:
+    - - - dropout
+        - 0
+        - 0
+        - {}
+    name: dense
+  name: functional_1
+  output_layers:
+  - [dense, 0, 0]
+keras_version: 2.4.0
